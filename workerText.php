@@ -15,8 +15,6 @@ $font  = trim($_POST['font']);
 $size  = intval($_POST['size']);
 $color = trim($_POST['color']);
 
-//echo $src, $x, $y, $font, $size, $color, $text;
-
 $obj = new workerText;
 
 $fall = $obj->get_mimeType($src, '/image\/(jpeg|png|gif)/', 'Файл не является изображением<br>').
@@ -24,25 +22,15 @@ $fall = $obj->get_mimeType($src, '/image\/(jpeg|png|gif)/', 'Файл не яв�
         $obj->validate($font, '/Shot\d{1,2}/', 'неправильный фонт<br>');
 if($fall)exit($fall);
 
-//$obj->deleteAllFiles('textImages');
+$papka = 'textImages';
+if (!file_exists ($papka)) mkdir($papka, 0755, true);
 
 $ext  =  mb_substr ($src, mb_strrpos($src, '.')+1);
 $file =  microtime(true). '.' . $ext;
 $path =  'textImages/' . $file;
 $fullpath = __DIR__ . '/' . $path;
 
-//session_destroy();
-
 $_SESSION['textimg'][] = $path;
-/*
-                   //session_destroy();
-                   $_SESSION['textimg'][] = $path;
-                   $ses = $_SESSION['textimg'];
-                    if(count($ses) > 1){
-                       unlink($ses[count($ses)-2]);
-                       //print_r($_SESSION['img']);
-                    }
-*/
 
 if($obj->setText($src, $fullpath, $text, $font, $color, $size, $x, $y)){
     echo $path;
