@@ -1,0 +1,56 @@
+
+addDefaultCharset UTF-8
+
+# запрещаем кэширование:
+<FilesMatch "\.(pl|php|html|less|css|cgi|js|spl|scgi|fcgi|jpg|jpeg|png|gif)$">
+        Header unset Cache-Control
+</FilesMatch>
+
+Options All -ExecCGI -Indexes -Includes +FollowSymLinks
+
+#Защищаем .htaccess файл
+<files .htaccess="">
+order allow,deny
+deny from all
+</files>
+# защищаем wpconfig.php
+<Files wp-config.php>
+order allow,deny
+deny from all
+</Files>
+<FilesMatch "\.(inc|cfg)$">
+   Order allow,deny
+   Deny from all
+</FilesMatch>
+<FilesMatch ".htpasswd">
+   Order allow,deny
+   Deny from all
+</FilesMatch>
+###########################################
+#Блокируем плохих ботов и роботов
+SetEnvIfNoCase user-Agent ^FrontPage [NC,OR]
+SetEnvIfNoCase user-Agent ^Java.* [NC,OR]
+SetEnvIfNoCase user-Agent ^Microsoft.URL [NC,OR]
+SetEnvIfNoCase user-Agent ^MSFrontPage [NC,OR]
+SetEnvIfNoCase user-Agent ^Offline.Explorer [NC,OR]
+SetEnvIfNoCase user-Agent ^[Ww]eb[Bb]andit [NC,OR]
+SetEnvIfNoCase user-Agent ^Zeus [NC]
+<limit get="" post="" head="">
+Order Allow,Deny
+Allow from all
+Deny from env=bad_bot
+</limit>
+###################################################################
+php_value upload_max_filesize 50M
+php_value post_max_filesize 80M
+#php_value zend.zel_compatibility_mode 1
+#######################################
+# Часовой пояс:
+<IfModule mod_setenvif.c>
+    SetEnv TZ Europe/Kiev
+</IfModule>
+# Скрываем подпись сервера:
+ServerSignature Off
+<ifModule mod_headers.c>
+    
+#################################################################
