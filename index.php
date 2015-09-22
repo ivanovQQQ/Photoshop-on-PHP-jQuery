@@ -1,6 +1,6 @@
 <?php
 header ("Content-Type:text/html; charset=UTF-8", false);
-
+session_start();
 // случайная картинка для заглушки
 $images_dir='fon';
 $scan=scandir($images_dir);
@@ -71,7 +71,7 @@ input{
 <div class="main" style="padding: 33px;">
 
 <div style="width: 1000px; margin: auto;">
-<h1 style="font-family: C3216tbU;text-align: center;">MAGICK PHOTOSHOP <a href="../quick_photoshop.rar"><img src="img/1432304683.jpg"> </a></h1>
+<h1 style="font-family: C3216tbU;text-align: center;">MAGICK PHOTOSHOP <a href="https://github.com/sash003/Photoshop-on-PHP-jQuery"><img src="img/1432304683.jpg"> </a></h1>
 <span style="color: #769c75; font-weight: bold; font-size: 21px;">
 /*<br />
 * @Copyright = sash<br />
@@ -99,7 +99,7 @@ input{
 </tr>
 <tr>
     <td>Ширина</td>
-    <td><input type="text" name="width" value="1024"/></td>
+    <td><input type="text" name="width" value="777"/></td>
 </tr>
 <tr>
     <td> Высота</td>
@@ -125,10 +125,6 @@ input{
     <td>Изменить контраст, от -100 до 100</td>
     <td><input type="text" name="contrast" value=""/></td>
 </tr>
-<!--<tr>
-    <td>Сделать чёрнобелую, любая цифра</td>
-    <td><input type="text" name="gray" value=""/></td>
-</tr>-->
 <tr>
     <td>Изменить скорость гифки, 1/100c</td>
     <td><input type="text" name="speed" value=""/></td>
@@ -145,12 +141,23 @@ input{
         <option>IMG_FILTER_EMBOSS</option>
     </select></td>
     <td><input type="text" name="filterVal" value=""/></td>
-    <?
-    //echo IMG_FILTER_GRAYSCALE, IMG_FILTER_SELECTIVE_BLUR, IMG_FILTER_GAUSSIAN_BLUR, IMG_FILTER_SMOOTH, IMG_FILTER_PIXELATE;
-    ?>
 </tr>
+<!---->
+
+<tr style="outline: 2px solid green;">
+    <td>Наложить водяной знак</td>
+    <td class="watermark">
+    <input type="file" name="watermark"/><br>
+    <input type="text" name="coeff" value="15"/> Процент от ширины основной<br>
+    <input type="text" name="x"/> x координата<br>
+    <input type="text" name="y"/> y координата<br>
+    <input type="text" name="opacity" value=""/> Прозрачность (float)<br>
+    </td>
+</tr>
+
+<!---->
 <tr>
-    <td><input type='submit' id='buttupload' value='Вперёд!' style="background: #359216; border: 5px solid blue; border-radius: 11px; margin-left: 55px;" /></td>
+    <td><br><input type='submit' id='buttupload' value='Вперёд!' style="background: #359216; border: 5px solid blue; border-radius: 11px; margin-left: 55px;" /></td>
     <td></td>
 </tr>
  </table>
