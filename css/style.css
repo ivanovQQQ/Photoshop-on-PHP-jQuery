@@ -1,4 +1,7 @@
 
+.watermark input[type="text"]{
+    width: 145px;
+}
 
 #theme-selector {
     float: left;
