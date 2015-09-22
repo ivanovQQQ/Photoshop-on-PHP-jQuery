@@ -1,4 +1,5 @@
 <?php
+
 header ("Content-Type:text/html; charset=UTF-8", false);
 session_start();
 // случайная картинка для заглушки
