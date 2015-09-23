@@ -1,5 +1,5 @@
 <?php
-
+// cd C:/OpenServer/domains/MyWorks/Photoshop-on-PHP-jQuery
           ############ПОЕХАЛИ#############
           
     function myErrorHandler ($errno, $errstr, $errfile, $errline) {
@@ -136,7 +136,7 @@
                        unlink($ses[count($ses)-2]);
                     }
                     
-           if($ext === 'gif'){
+           if($ext === 'gif' || $ext2 === 'gif'){
                echo json_encode(array('save' => $saveto, 'delay' => $img->getDelay($saveto)[0], 'countframes'=>$img->getDelay($saveto)[1]));
            }        
            else echo json_encode(array('save' => $saveto));
