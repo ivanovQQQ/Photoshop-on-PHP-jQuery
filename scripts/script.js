@@ -1,7 +1,3 @@
-
-
-
-
     
     var body      = $('body'),
         thumbnail = $("#thumbnail"),
@@ -55,7 +51,7 @@ $('#my_form').on('submit', function(e){
                             imgH = thumbnail.height();
                             var str = imgW +'x'+ imgH;
                             if(response.delay){
-                                str += '<br>Скорость гифки '+ response.delay;
+                                str += '<br>Скорость гифки '+ response.delay + '<br>Количество кадров ' + response.countframes;
                             }
                             $('#getimage').html(str);
                             //$('[name=width]').val(imgW).css({'border':'3px solid green'});
