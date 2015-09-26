@@ -50,17 +50,11 @@ $('#my_form').on('submit', function(e){
                             imgW = thumbnail.width();
                             imgH = thumbnail.height();
                             var str = imgW +'x'+ imgH;
-                            if(response.delay){
+                            if(response.delay || response.countframes){
+                                response.delay = response.delay || 10;
                                 str += '<br>Скорость гифки '+ response.delay + '<br>Количество кадров ' + response.countframes;
                             }
                             $('#getimage').html(str);
-                            //$('[name=width]').val(imgW).css({'border':'3px solid green'});
-                            //$('[name=height]').val(imgH).css({'border':'3px solid green'});
-                            /*
-                            if(response.delay){
-                                $('[name=speed]').val(response.delay).css({'border':'3px solid green'});
-                            }
-                            */
                             write.css({'width':imgW, 'height':imgH});
                          });
                      }
@@ -155,4 +149,4 @@ if(c === true){
 		a.width(b.width());
 	}
 }
-}
+}	
