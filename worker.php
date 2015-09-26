@@ -1,5 +1,7 @@
 <?php
 // cd C:/OpenServer/domains/MyWorks/Photoshop-on-PHP-jQuery
+// pear install -o http://pecl.php.net/package/imagick/imagick-3.3.0RC2.tgz
+
           ############ПОЕХАЛИ#############
           
     function myErrorHandler ($errno, $errstr, $errfile, $errline) {
@@ -22,18 +24,7 @@
        
        $img = new ImageWorker();
        
-       $papka = 'windows_images';
-	   if (!file_exists ($papka)) mkdir($papka, 0755, true);
-       
-       $tmp_gray = 'forgray';
-	   if (!file_exists ($tmp_gray)) mkdir($tmp_gray, 0755, true);
-       
-       $tmppapka = 'tmp';   
-       if (!file_exists ($tmppapka)) mkdir($tmppapka, 0755, true);
-        
-       $tmppapka2 = 'tmp2';   
-       if (!file_exists ($tmppapka2)) mkdir($tmppapka2, 0755, true);
-    
+       $img->mkDirs();       
       
              $width = intval($_POST['width']);
              $height = intval($_POST['height']);
@@ -48,6 +39,10 @@
              $filter = trim($_POST['filter']);
              $filterVal = intval($_POST['filterVal']);
              $speed =  intval($_POST['speed']);
+             $countFrames =  intval(trim($_POST['countFrames']));
+             $setCountFrames =  intval(trim($_POST['setCountFrames']));
+             $setSlowdown    =  floatval(trim($_POST['setSlowdown']));
+             $proc  =  intval(trim($_POST['trimBackground']));
              
              $x = intval($_POST['x']);
              $y = intval($_POST['y']);
@@ -55,8 +50,8 @@
              $opacity = floatval($_POST['opacity']);
             
              $fall = $img->get_mimeType($_FILES['image']['tmp_name'], '/image\/(jpeg|png|gif)/', '1')
-             .$img->validate($color_bord, '/\#[a-z\d]{6}/i', '1')
-             .$img->validate($filter, '/|^IMG_FILTER_.{6,17}$/', '1'); 
+             .$img->validate($color_bord, '/\#[a-z\d]{6}/i', '2')
+             .$img->validate($filter, '/|^IMG_FILTER_.{6,17}$/', '3');
              
              if(    strlen($rlc)>1        ||
                     $width > 1280         || 
@@ -86,7 +81,6 @@
                 
                 $sourse = $_FILES['image']['tmp_name'];
                 $path2 = false;
-                $saveto = $papka.'/'.strval(microtime(true)). '.' . $ext;
                 
                 if(is_uploaded_file($_FILES['watermark']['tmp_name'])){
                    
@@ -98,11 +92,12 @@
                          
                    $name2=basename($_FILES['watermark']['name']);
                    $ext2 = strtolower(mb_substr ($name2, mb_strrpos($name2, '.')+1));
-                   $path2 = $tmppapka . '/' . microtime(true). '.' .$ext2;
+                   $path2 = $img->tmp . '/' . microtime(true). '.' .$ext2;
                    move_uploaded_file($_FILES['watermark']['tmp_name'], $path2);                                
                 }
                 
-                $saveto = $papka.'/'.strval(microtime(true)).'.' . $ext;
+                if($ext == 'jpeg' || $ext == 'jpg') $ext = 'png';
+                $saveto = $img->papka.'/' .time(). '.' . $ext;
                 $ImagickSave = __DIR__ .'/'. $saveto;
                 
                   if($rlc){
@@ -123,30 +118,165 @@
                      if($speed){
                          $img->delayImage($ImagickSave, $ImagickSave, $speed);
                      }
-                     if(file_exists($path2)){
-                        $saveto = $img->add_watermark( $ImagickSave, $path2, $papka, $coeff, $x, $y, $opacity );
+                     if($setSlowdown){
+                         $img->setSlowdown($ImagickSave, $ImagickSave, $setSlowdown);
                      }
                      
-                     $img->deleteAllFiles($tmppapka);
-                     $img->deleteAllFiles($tmppapka2);
+                     if($countFrames){
+                       $saveto = $img->setCountFrames($saveto, $countFrames);
+                     }
+                     if($setCountFrames){
+                       $saveto = $img->setCountFrames2($saveto, $setCountFrames);
+                     }
+                     if($proc){
+                         $saveto = $img->trimBackground($saveto, $proc);
+                     }
+                     if(file_exists($path2)){
+                        $saveto = $img->add_watermark( $saveto, $path2, $img->papka, $coeff, $x, $y, $opacity );
+                     }
+                     
+                     $img->rmDirs();
                      
                    $_SESSION['img'][] = $saveto;
                    $ses = $_SESSION['img'];
                     if(count($ses) > 1){
-                       unlink($ses[count($ses)-2]);
+                      if(file_exists($ses[count($ses)-2])){
+                       //unlink($ses[count($ses)-2]);   
+                      }
                     }
                     
-           if($ext === 'gif' || $ext2 === 'gif'){
+           if($ext === 'gif' || (isset($ext2) && $ext2 === 'gif')){
                echo json_encode(array('save' => $saveto, 'delay' => $img->getDelay($saveto)[0], 'countframes'=>$img->getDelay($saveto)[1]));
            }        
            else echo json_encode(array('save' => $saveto));
-  
+           
+           $img->rmDirs();
+           
       }
 } else exit(json_encode(array('save' => null)));
 
 
 
 class ImageWorker {
+    
+function mkDirs(){
+    $dirs = array('windows_images', 'forgray', 'tmp', 'tmp2', 'tmp3', 'tmp4');
+    foreach($dirs as $dir){
+        if (!file_exists ($dir)) mkdir($dir, 0755, true);
+    }
+}
+    
+function rmDirs(){
+    $dirs = array('forgray', 'tmp', 'tmp2', 'tmp3', 'tmp4');
+    foreach($dirs as $dir){
+        if (file_exists ($dir)){
+            $this->deleteAllFiles($dir);
+            rmdir($dir);
+        }
+    }
+}
+    
+public $papka = 'windows_images';
+public $forgray = 'forgray';
+public $tmp  = 'tmp';
+public $tmp2  = 'tmp2';
+public $tmp3  = 'tmp3';
+public $tmp4  = 'tmp4';
+
+function setSlowdown($src, $dest, $count){
+    
+    $gif = new \Imagick(realpath($src));
+    $delay = $this->getDelay($src)[0];
+    
+    if($gif->getImageMimeType()=='image/gif'){
+     
+     foreach($gif as $key=>$frame){
+         $frame->setImageDelay($delay+$key*$count);
+     }
+       $gif->writeImages($dest, true);
+    }
+    
+}
+
+function setCountFrames2($src, $count){
+   
+    $gif = new \Imagick(realpath($src));
+    if($gif->getImageMimeType()=='image/gif'){
+    
+    $new = new \Imagick();
+    $delay = $this->getDelay($src)[0];
+    $countFr = $this->getDelay($src)[1];
+            
+    foreach($gif as $key=>$frame){
+        if($key<$count){
+            $frame->writeImage(__DIR__ . '/' . $this->tmp4 . '/' . $key . '.png' );
+        }
+    }
+            $scan = glob($this->tmp4 . '/*');
+            sort($scan, SORT_NATURAL);
+            foreach($scan as $file){
+                
+                $img = new \Imagick(realpath($file));
+                $img->setImageDelay($delay);
+                $new->addImage($img);
+                
+            }                     
+    }
+    
+    $new->writeImages(__DIR__ . '/' . $src, true);
+    
+    $gif->clear();
+    $new->clear();
+    
+    return $src;
+
+}
+    
+
+function setCountFrames($src, $count){
+   
+    $gif = new \Imagick(realpath($src));
+    if($gif->getImageMimeType()=='image/gif'){
+    
+    $delay = $this->getDelay($src)[0];
+    $countFr = $this->getDelay($src)[1];
+    
+    for($i = 0; $i < $count; $i++){
+        copy($src, $this->tmp3 . '/' . $i.'.gif');
+    }
+    $name = $countFr.'x'. $delay .'I' .time().'.gif';
+    $name2 = '../' . $this->papka . '/' .$name;
+    $name3 = $this->papka . '/' .$name;
+    
+    $this->execute("convert -dispose background -delay {$delay} tmp3/*.gif -loop 0 {$src}");
+    
+    $gif->clear();
+    return $src;
+    
+    }
+    
+}
+    
+public function execute($command){
+    
+        $command = str_replace(array("\n", "'"), array('', '"'), $command);
+        $command = escapeshellcmd($command);
+        
+        exec($command);
+    }
+    
+function trimBackground($src, $proc){
+    
+$type=pathinfo($src, PATHINFO_EXTENSION);
+$im = new \Imagick(realpath($src));
+$color = $im->getImagePixelColor (0, 0);
+$color = $color->getColorAsString(); 
+$dest = $this->papka . '/' . microtime(true) . '.' . $type;
+$this->execute("convert {$src} -fuzz {$proc}% -transparent {$color} {$dest}");
+return $dest;
+
+}
+   
     
 function add_watermark( $source_image_path, $watermark_path, $papka, $coeff, $x, $y, $opacity=0 ){
 $result = false;
@@ -160,12 +290,6 @@ try{
     
     $width = $first->getImageWidth();
     $width = $width/100*$coeff;
-    
-    $tmppapka = 'tmp';   
-    if (!file_exists ($tmppapka)) mkdir($tmppapka, 0755, true);
-        
-    $tmppapka2 = 'tmp2';   
-    if (!file_exists ($tmppapka2)) mkdir($tmppapka2, 0755, true);
     
     if(!$x && !$y){
         $width_src = $first->getImageWidth(); 
@@ -188,15 +312,15 @@ try{
                 $frame->thumbnailImage($width, 0);
             }
             
-            $tmppath = __DIR__ . '/' . $tmppapka . '/' . uniqid() . microtime(true).'.gif';
+            $tmppath = __DIR__ . '/' . $this->tmp . '/' . uniqid() . microtime(true).'.gif';
             $second->writeImages($tmppath, true);
             
             $second = new \Imagick($tmppath);
             foreach($second as $key=>$frame){
-                $frame->writeImage(__DIR__. '/' . $tmppapka2 . '/' .$key . '.png');
+                $frame->writeImage(__DIR__. '/' . $this->tmp2 . '/' .$key . '.png');
             }
             
-            $scan = glob($tmppapka2 . '/*');
+            $scan = glob($this->tmp2 . '/*');
             sort($scan, SORT_NATURAL);
             
             foreach($first as $key=>$frame){
@@ -210,8 +334,6 @@ try{
                 
             }
             $result = $first->writeImages($output, true);
-            unlink($tmppath);
-            $this->deleteAllFiles($tmppapka2);
             //////////
             ##########
             
@@ -238,7 +360,7 @@ try{
             foreach($second as $frame){
                 $frame->thumbnailImage($width, 0);
             }
-            $tmppath = __DIR__ . '/tmp/' . uniqid() . microtime(true).'.gif';
+            $tmppath = __DIR__ . '/' . $this->tmp . '/' . uniqid() . microtime(true).'.gif';
             $second->writeImages($tmppath, true);
             
             $second = new \Imagick($tmppath);
@@ -287,7 +409,7 @@ function filter($src, $dest, $filter, $arg){
   $filter = constant($filter);
   try{
     $animation = new \Imagick(realpath($src));
-    $tmp = 'forgray/'.uniqid().microtime(true).'.jpg';
+    $tmp = $this->forgray . '/'.uniqid().microtime(true).'.jpg';
     if($animation->getImageMimeType()=='image/gif'){
     
     foreach ($animation as $frame) { 
@@ -318,7 +440,7 @@ function filter($src, $dest, $filter, $arg){
       $fr = new \Imagick(realpath($tmp));
       $animation->compositeImage($fr, Imagick::COMPOSITE_DEFAULT, 0, 0);
       $result = $animation->writeImage($dest);
-      unlink($tmp);
+  
     }
   }catch(ImagickException $e){
 		echo 'У нас проблема '. $e->getMessage(). " в файле ".$e->getFile().", строка ".$e->getLine();
@@ -381,7 +503,7 @@ function resize($orig, $path, $width=0, $height=0){
 	try {
 		$img = new \Imagick(realpath($orig));
 		if($img->getImageMimeType()=='image/gif'){
-			
+        
 		foreach ($img as $frame) {
     		$frame->thumbnailImage($width, $height);    		
 		}
@@ -426,7 +548,7 @@ function brightnessContrastImage($src, $dest, $brightness, $contrast, $channel=I
         		$result=$img->writeImages($dest, true);
         		
         	}else{
-                  $tmp = 'forgray/'.uniqid().microtime(true).'.jpg';
+                  $tmp = $this->forgray . '/'.uniqid().microtime(true).'.jpg';
                   foreach ($img as $frame) {
                       $frame->writeImage(__DIR__.'/'.$tmp);
                       $im = imagecreatefromjpeg($tmp);
@@ -468,7 +590,6 @@ function brightnessContrastImage($src, $dest, $brightness, $contrast, $channel=I
 	return $result;       
 }
 ###########################
-// pear install -o http://pecl.php.net/package/imagick/imagick-3.3.0RC2.tgz
 
 
 // РАМКА
