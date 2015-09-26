@@ -26,7 +26,8 @@ textSub.click(function(e){
         y   = text.css('top'),
         c   = colorIn.val(),
         f   = fontIn.val(),
-        s   = sizeIn.val()
+        s   = sizeIn.val();
+        
     $.ajax({
         type : 'post',
         url  : 'workerText.php',
@@ -73,6 +74,9 @@ body.on('mouseup', writed, function(e){
                     top: e.pageY - offset.top,
                     maxWidth : imgW - 22
                 }).focus();
+                //console.log((e.pageX - offset.left) + 'x' + (e.pageY - offset.top));
+                $('[name=x]').val(e.pageX - offset.left);
+                $('[name=y]').val(parseInt(e.pageY - offset.top));
 		  }   
          }   
         }
