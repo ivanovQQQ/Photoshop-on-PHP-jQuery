@@ -1,5 +1,4 @@
 <?php
-
 header ("Content-Type:text/html; charset=UTF-8", false);
 session_start();
 // случайная картинка для заглушки
@@ -100,7 +99,7 @@ input{
 </tr>
 <tr>
     <td>Ширина</td>
-    <td><input type="text" name="width" value="777"/></td>
+    <td><input type="text" name="width" value="555"/></td>
 </tr>
 <tr>
     <td> Высота</td>
@@ -131,6 +130,22 @@ input{
     <td><input type="text" name="speed" value=""/></td>
 </tr>
 <tr>
+    <td>Поднять количество кадров в гифке</td>
+    <td><input type="text" name="countFrames" value=""/></td>
+</tr>
+<tr>
+    <td>Установить количество кадров в гифке</td>
+    <td><input type="text" name="setCountFrames" value=""/> <span style="text-decoration: line-through; color: green; padding-left: 11px;">EXEC</span></td>
+</tr>
+<tr>
+    <td>Замедлить гифку</td>
+    <td><input type="text" name="setSlowdown" value=""/></td>
+</tr>
+<tr>
+    <td>Убрать фон (%)</td>
+    <td><input type="text" name="trimBackground" value=""/> <span style="text-decoration: line-through; color: green; padding-left: 11px;">EXEC</span></td>
+</tr>
+<tr>
     <td><select name="filter">
         <option></option>
         <option>IMG_FILTER_GRAYSCALE</option>
@@ -146,7 +161,7 @@ input{
 <!---->
 
 <tr style="outline: 2px solid green;">
-    <td>Наложить водяной знак</td>
+    <td style="text-align: center;">Наложить водяной знак</td>
     <td class="watermark">
     <input type="file" name="watermark"/><br>
     <input type="text" name="coeff" value="15"/> Процент от ширины основной<br>
@@ -283,6 +298,3 @@ input{
 
 </body>
 </html>
-  
-	
-  
