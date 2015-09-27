@@ -78,12 +78,13 @@ input{
  * Если передаёте ширину и высоту, картинка будет растянута<br>
  * Передавая только один параметр, другой подставится согласно масштабу <br>
  * Ecть возможность резки по центру<br>
- * Допускается комбинация с рамкой, яркостью и контрастом<br>
+ * Допускаются всевозможные комбинации <br>
 * Также можно выделить и сохранить нужный участок картинки<br>
 * Максимальные размеры - 1280х960, для гифок от 100 до 500 в зависимости от размера (большая нагрузка на сервр)<br>  
 * В случае с гифками придётся малость подождать<br>
 * Здесь на сервере похоже стоит старая версия ImageMagick, метод brightnessContrastImage не доступен, я уже прям в функ ImageMagick встроил GD, долго будет обрабатывать каждый кадр, точно так же реализованы фильтры<br>
 * P.S. В случае с Mozilla ВОЗВРАЩАЕТСЯ ГИФКА, почему она не всегда проигрывается - загадка природы<br>
+* P.P.S. Для выполнения консольных exec команд установите <a href="http://freesoft.ru/imagemagick" style="color: white;">ImageMagick</a><br>
 */<br>
 </span>
 <form id="my_form" method='post' action='worker.php' enctype='multipart/form-data' style="width: 760px;">
@@ -131,14 +132,14 @@ input{
 </tr>
 <tr>
     <td>Поднять количество кадров в гифке</td>
-    <td><input type="text" name="countFrames" value=""/></td>
+    <td><input type="text" name="countFrames" value=""/><span style="text-decoration: line-through; color: green; padding-left: 11px;">EXEC</span></td>
 </tr>
 <tr>
     <td>Установить количество кадров в гифке</td>
-    <td><input type="text" name="setCountFrames" value=""/> <span style="text-decoration: line-through; color: green; padding-left: 11px;">EXEC</span></td>
+    <td><input type="text" name="setCountFrames" value=""/> </td>
 </tr>
 <tr>
-    <td>Замедлить гифку</td>
+    <td>Замедлить гифку (float)</td>
     <td><input type="text" name="setSlowdown" value=""/></td>
 </tr>
 <tr>
@@ -298,3 +299,6 @@ input{
 
 </body>
 </html>
+  
+	
+  
