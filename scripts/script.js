@@ -38,7 +38,7 @@ $('#my_form').on('submit', function(e){
         dataType : 'json',
 		data: formData,
 		success: function(response){
-            console.log(response);
+            //console.log(response);
                      // при неверных данных делаю exit('()') в worker.php
                      if(response.save == null){ // в файле-обработчике отключил вывод ошибок из-за недоступности brightnessContrastImage
                          thumbnail.attr("src", 'img/gon.jpg');
@@ -149,4 +149,4 @@ if(c === true){
 		a.width(b.width());
 	}
 }
-}	
+}
