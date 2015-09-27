@@ -107,27 +107,38 @@
                       $img->resize($sourse, $ImagickSave, $width, $height);
                   }
                      if($size_bord){
-                         $img->set_border($ImagickSave, $ImagickSave, $size_bord, $color_bord);
+                         $img->set_border($saveto, $ImagickSave, $size_bord, $color_bord);
                      }
                      if($brightness || $contrast){
-                         $img->brightnessContrastImage($ImagickSave, $ImagickSave, $brightness, $contrast);
+                         $img->brightnessContrastImage($saveto, $ImagickSave, $brightness, $contrast);
                      }
                      if($filter){
-                         $img->filter($ImagickSave, $ImagickSave, $filter, $filterVal);
+                         $img->filter($saveto, $ImagickSave, $filter, $filterVal);
                      }
                      if($speed){
-                         $img->delayImage($ImagickSave, $ImagickSave, $speed);
+                         $img->delayImage($saveto, $ImagickSave, $speed);
                      }
-                     if($setSlowdown){
-                         $img->setSlowdown($ImagickSave, $ImagickSave, $setSlowdown);
-                     }
+                     
+                     
+                     //
+                     
                      
                      if($countFrames){
                        $saveto = $img->setCountFrames($saveto, $countFrames);
                      }
+                     
                      if($setCountFrames){
                        $saveto = $img->setCountFrames2($saveto, $setCountFrames);
                      }
+                     
+                     if($setSlowdown){
+                        $saveto = $img->setSlowdown($saveto, $setSlowdown);
+                     }
+                     
+                     
+                     //
+                     
+                     
                      if($proc){
                          $saveto = $img->trimBackground($saveto, $proc);
                      }
@@ -183,17 +194,26 @@ public $tmp2  = 'tmp2';
 public $tmp3  = 'tmp3';
 public $tmp4  = 'tmp4';
 
-function setSlowdown($src, $dest, $count){
+function setSlowdown($src, $count){
     
     $gif = new \Imagick(realpath($src));
     $delay = $this->getDelay($src)[0];
+    $countFr = $this->getDelay($src)[1];
     
     if($gif->getImageMimeType()=='image/gif'){
      
      foreach($gif as $key=>$frame){
          $frame->setImageDelay($delay+$key*$count);
      }
-       $gif->writeImages($dest, true);
+     
+     $src = $this->papka . '/' . $countFr . 'x' . $delay . 'X' . time() . '.gif';
+    
+    $gif->writeImages(__DIR__ . '/' . $src, true);
+    
+    $gif->clear();
+    
+    return $src;
+     
     }
     
 }
@@ -222,6 +242,8 @@ function setCountFrames2($src, $count){
                 
             }                     
     }
+    
+    $src = $this->papka . '/' . $countFr . 'x' . $delay . 'X' . time() . '.gif';
     
     $new->writeImages(__DIR__ . '/' . $src, true);
     
@@ -673,3 +695,4 @@ function deleteAllFiles($dir){
 }// end class Worker
 
 
+	
