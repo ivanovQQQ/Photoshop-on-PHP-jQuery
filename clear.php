@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+session_start()
 $ses1 = $_SESSION['img'];
 $ses2 = $_SESSION['cropimg'];
 $ses3 = $_SESSION['textimg'];
